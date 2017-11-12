@@ -1,0 +1,22 @@
+dependencies:
+  override:
+    - sudo apt-add-repository -y ppa:duggan/bats
+    - sudo apt-get update; sudo apt-get install -y bats jq binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+    - |
+      wget https://github.com/SimonKagstrom/kcov/archive/master.zip -O /tmp/kcov.zip
+      unzip /tmp/kcov.zip
+      cd kcov-master
+      cmake .
+      make -j$(nproc)
+      sudo make install
+  post:
+    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /tmp/cc-test-reporter
+    - chmod +x /tmp/cc-test-reporter
+test:
+  pre:
+    - /tmp/cc-test-reporter before-build
+  override:
+    - kcov --include-path=. coverage bats tests/
+    - /tmp/cc-test-reporter format-coverage $(ls -1 coverage/bats*/cobertura.xml | head -1) --input-type cobertura
+    - /tmp/cc-test-reporter upload-coverage
+    - mv coverage $CIRCLE_ARTIFACTS
