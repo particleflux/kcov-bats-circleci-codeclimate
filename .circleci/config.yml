@@ -42,7 +42,7 @@ jobs:
 
           # removing trailing slash in cobertura <source>
           # this works around an issue with the codeclimate formatter
-          sed -i "s#<source>$(pwd)/</source>#<source>$(pwd)</source>#" "$xml"
+          sed -ri "s#<source>(.+)/</source>#<source>\1</source>#" "$xml"
 
           /tmp/cc-test-reporter format-coverage $xml --input-type cobertura --prefix "./"
           /tmp/cc-test-reporter upload-coverage
