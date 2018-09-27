@@ -44,7 +44,7 @@ jobs:
           # this works around an issue with the codeclimate formatter
           sed -ri "s#<source>(.+)/</source>#<source>\1</source>#" "$xml"
 
-          /tmp/cc-test-reporter format-coverage $xml --input-type cobertura --prefix "./"
+          /tmp/cc-test-reporter format-coverage $xml --input-type cobertura
           /tmp/cc-test-reporter upload-coverage
 
     - store_artifacts:
