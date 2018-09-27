@@ -10,6 +10,9 @@ coverage in combination with [CircleCI] and [Code Climate].
 The kcov version on the Ubuntu repositories is quite outdated, so this example
 uses a self-compiled version.
 
+This is run in a VM instead of a custom image, as for some odd reason, kcov
+refused to work inside of docker.
+
 [CircleCI]: https://circleci.com
 [Code Climate]: https://codeclimate.com/
 [kcov]: https://github.com/SimonKagstrom/kcov/
