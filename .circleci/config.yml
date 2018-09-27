@@ -1,0 +1,51 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+    - checkout
+
+    - run:
+        command: |
+          sudo apt-add-repository -y ppa:duggan/bats
+          sudo apt-get update
+          sudo apt-get install -y bats jq binutils-dev libcurl4-openssl-dev \
+          zlib1g-dev libdw-dev libiberty-dev
+
+          wget 'https://github.com/SimonKagstrom/kcov/archive/v36.zip' -O /tmp/kcov.zip
+          unzip /tmp/kcov.zip
+          cd kcov-36
+          cmake .
+          make -j$(nproc)
+          sudo make install
+
+    # install codeclimate test reporter
+    - restore_cache:
+        keys:
+        - v1-dependencies
+    - run:
+        command: |
+          if [[ ! -f "/tmp/cc-test-reporter" ]]; then
+            wget https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -O /tmp/cc-test-reporter
+          fi
+          chmod +x /tmp/cc-test-reporter
+    - save_cache:
+        paths:
+          - /tmp/cc-test-reporter
+        key: v1-dependencies
+
+    - run:
+        command: |
+          /tmp/cc-test-reporter before-build
+          kcov --include-path=. coverage bats tests/
+          xml="$(ls -1 coverage/bats*/cobertura.xml | head -1)"
+
+          # removing trailing slash in cobertura <source>
+          # this works around an issue with the codeclimate formatter
+          sed -i "s#<source>$(pwd)/</source>#<source>$(pwd)</source>#" "$xml"
+
+          /tmp/cc-test-reporter format-coverage $xml --input-type cobertura --prefix "./"
+          /tmp/cc-test-reporter upload-coverage
+
+    - store_artifacts:
+        path: coverage
