@@ -1,8 +1,4 @@
-engines:
-  duplication:
-    enabled: true
+version: "2"
+plugins:
   shellcheck:
     enabled: true
-ratings:
-  paths:
-  - "**.sh"
