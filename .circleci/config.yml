@@ -2,37 +2,49 @@ version: 2
 jobs:
   build:
     machine: true
+    environment:
+      KCOV_VERSION: 36
     steps:
     - checkout
 
-    - run:
-        command: |
-          sudo apt-add-repository -y ppa:duggan/bats
-          sudo apt-get update
-          sudo apt-get install -y bats jq binutils-dev libcurl4-openssl-dev \
-          zlib1g-dev libdw-dev libiberty-dev
-
-          wget 'https://github.com/SimonKagstrom/kcov/archive/v36.zip' -O /tmp/kcov.zip
-          unzip /tmp/kcov.zip
-          cd kcov-36
-          cmake .
-          make -j$(nproc)
-          sudo make install
+    - run: echo "$KCOV_VERSION" > /tmp/kcov_version
 
     # install codeclimate test reporter
     - restore_cache:
         keys:
-        - v1-dependencies
+        - v2-dependencies-{{ checksum "/tmp/kcov_version" }}
+
     - run:
         command: |
           if [[ ! -f "/tmp/cc-test-reporter" ]]; then
             wget https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -O /tmp/cc-test-reporter
           fi
           chmod +x /tmp/cc-test-reporter
+
+    - run:
+        command: |
+          sudo apt-add-repository -y ppa:duggan/bats
+          sudo apt-get update
+          sudo apt-get install -y bats jq binutils-dev libcurl4-openssl-dev \
+              zlib1g-dev libdw-dev libiberty-dev
+
+          if [[ ! -d "/tmp/kcov/kcov-$KCOV_VERSION" ]]; then
+            wget "https://github.com/SimonKagstrom/kcov/archive/v$KCOV_VERSION.zip" -O /tmp/kcov.zip
+            unzip /tmp/kcov.zip -d /tmp/kcov
+            cd "/tmp/kcov/kcov-$KCOV_VERSION"
+            cmake .
+            make -j$(nproc)
+          else
+            cd "/tmp/kcov/kcov-$KCOV_VERSION"
+          fi
+
+          sudo make install
+
     - save_cache:
         paths:
           - /tmp/cc-test-reporter
-        key: v1-dependencies
+          - /tmp/kcov
+        key: v2-dependencies-{{ checksum "/tmp/kcov_version" }}
 
     - run:
         command: |
