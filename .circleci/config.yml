@@ -1,4 +1,4 @@
-version: 2
+version: 2.0
 jobs:
   build:
     docker:
@@ -40,3 +40,19 @@ jobs:
 
     - store_artifacts:
         path: coverage
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build
