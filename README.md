@@ -1,5 +1,9 @@
 # kcov-bats-circleci-codeclimate
 
+**Archived** Codeclimate no longer exists, they're now qlty.sh, the old config and coverage reporting no logner works.
+
+
+
 [![CircleCI](https://circleci.com/gh/particleflux/kcov-bats-circleci-codeclimate.svg?style=shield)](https://circleci.com/gh/particleflux/kcov-bats-circleci-codeclimate)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/da9822206885bc00d817/test_coverage)](https://codeclimate.com/github/particleflux/kcov-bats-circleci-codeclimate/test_coverage)
 
